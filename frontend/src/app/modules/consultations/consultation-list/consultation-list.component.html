@@ -1,0 +1,75 @@
+<div class="topbar">
+  <div>
+    <div class="topbar-title"><i class="bi bi-folder2-open"></i> Dossiers Médicaux</div>
+    <div class="topbar-subtitle">Historique des consultations et diagnostics</div>
+  </div>
+  <div *ngIf="userRole === 'MEDECIN' || userRole === 'ADMIN'">
+    <a routerLink="/consultations/new" class="btn btn-primary">
+      <i class="bi bi-plus-lg"></i> Nouvelle Consultation
+    </a>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="card">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Patient</th>
+            <th>Médecin</th>
+            <th>Motif</th>
+            <th>Tension / Poids</th>
+            <th class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let cons of consultations">
+            <td>
+              <div class="fw-bold">{{ cons.date_consultation | date:'dd/MM/yyyy' }}</div>
+              <small class="text-muted">ID: #{{ cons.id }}</small>
+            </td>
+            <td>
+              <div class="d-flex align-items-center">
+                <div class="avatar-sm me-2">{{ cons.patient.nom[0] }}</div>
+                <span>{{ cons.patient.nom }} {{ cons.patient.prenom }}</span>
+              </div>
+            </td>
+            <td>Dr. {{ cons.medecin.nom }}</td>
+            <td>
+              <span class="text-truncate d-inline-block" style="max-width: 200px;" [title]="cons.motif">
+                {{ cons.motif }}
+              </span>
+            </td>
+            <td>
+              <span class="badge badge-light" *ngIf="cons.tension">{{ cons.tension }}</span>
+              <span class="ms-1" *ngIf="cons.poids">{{ cons.poids }}kg</span>
+            </td>
+            <td class="text-end">
+              <div class="btn-group">
+                <a [routerLink]="['/consultations', cons.id]" class="btn btn-icon" title="Voir détails">
+                  <i class="bi bi-eye"></i>
+                </a>
+                <a *ngIf="cons.ordonnance" [routerLink]="['/ordonnances', cons.ordonnance.id, 'view']" class="btn btn-icon text-primary" title="Voir l'ordonnance">
+                  <i class="bi bi-prescription2"></i>
+                </a>
+              </div>
+            </td>
+          </tr>
+          <tr *ngIf="consultations.length === 0 && !loading">
+            <td colspan="6" class="text-center py-5">
+              <i class="bi bi-inbox fs-1 text-muted"></i>
+              <p class="mt-2 text-muted">Aucune consultation trouvée.</p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-footer d-flex justify-content-between align-items-center" *ngIf="consultations.length > 0">
+      <div class="text-muted">Affichage de {{ consultations.length }} consultations</div>
+      <!-- Pagination simple possible ici -->
+    </div>
+  </div>
+</div>

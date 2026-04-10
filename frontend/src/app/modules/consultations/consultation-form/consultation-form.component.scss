@@ -1,0 +1,154 @@
+@use "sass:color";
+
+/* Fond de page dégradé médical */
+.bg-medical {
+    background: radial-gradient(circle at 0% 0%, #f0f7ff 0%, #ffffff 100%);
+    min-height: calc(100vh - 80px);
+}
+
+/* Barrettes de titre de section */
+.form-section-title {
+    font-size: 0.75rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: #94a3b8;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    
+    &::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: linear-gradient(to right, #e2e8f0, transparent);
+    }
+}
+
+/* Glassmorphism Cards */
+.glass-card {
+    background: rgba(255, 255, 255, 0.8);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.03);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    
+    &:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 30px 60px rgba(30, 64, 175, 0.08);
+    }
+}
+
+/* Inputs Premium */
+.premium-label {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 700;
+    color: #475569;
+    margin-bottom: 0.5rem;
+}
+
+.input-with-icon {
+    position: relative;
+    i {
+        position: absolute;
+        left: 15px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: #3b82f6;
+        font-size: 1.1rem;
+    }
+    .premium-input, .premium-select {
+        padding-left: 45px;
+    }
+}
+
+.premium-input, .premium-select, .premium-textarea {
+    width: 100%;
+    padding: 12px 16px;
+    background: #ffffff;
+    border: 2px solid #f1f5f9;
+    border-radius: 12px;
+    font-size: 0.95rem;
+    color: #1e293b;
+    transition: all 0.2s ease;
+    
+    &:focus {
+        outline: none;
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+        background: #fff;
+    }
+}
+
+/* Boutique de constantes (Vital stats) */
+.vital-widget {
+    background: #fff;
+    border-radius: 15px;
+    padding: 1.2rem;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 1px solid #f1f5f9;
+    margin-bottom: 1rem;
+    
+    .icon-box {
+        width: 45px;
+        height: 45px;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.3rem;
+        &.blue { background: #eff6ff; color: #3b82f6; }
+        &.red { background: #fef2f2; color: #ef4444; }
+        &.green { background: #f0fdf4; color: #22c55e; }
+    }
+    
+    .data-box {
+        .val { display: block; font-size: 1.2rem; font-weight: 800; color: #1e3a8a; line-height: 1; }
+        .unit { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; }
+    }
+}
+
+/* Action Buttons */
+.btn-premium {
+    background: linear-gradient(135deg, #1e40af, #3b82f6);
+    color: #fff;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    border: none;
+    box-shadow: 0 10px 20px rgba(30, 64, 175, 0.15);
+    transition: all 0.3s ease;
+    
+    &:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 15px 30px rgba(30, 64, 175, 0.25);
+    }
+}
+
+.btn-glass-secondary {
+    background: rgba(0, 0, 0, 0.05);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    color: #475569;
+    padding: 12px 28px;
+    border-radius: 12px;
+    font-weight: 700;
+    transition: all 0.2s;
+    &:hover { background: rgba(0, 0, 0, 0.08); }
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.page-content {
+    animation: fadeIn 0.5s ease forwards;
+}

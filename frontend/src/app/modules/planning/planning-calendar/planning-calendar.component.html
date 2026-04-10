@@ -1,0 +1,83 @@
+<div class="topbar">
+  <div>
+    <div class="topbar-title"><i class="bi bi-calendar-check"></i> Disponibilités & Planning</div>
+    <div class="topbar-subtitle">Planning hebdomadaire des médecins</div>
+  </div>
+  <div style="display:flex;gap:12px;align-items:center">
+    <select class="form-control" style="min-width:200px" [formControl]="medecinFilter">
+      <option value="">Tous les médecins</option>
+      <option *ngFor="let m of medecins" [value]="m.id">{{ m.nom }} {{ m.prenom }}</option>
+    </select>
+    <button class="btn btn-primary" (click)="openAvailability(); showModal = true">
+      <i class="bi bi-plus-circle"></i> Ajouter une disponibilité
+    </button>
+    <a routerLink="/medecins" class="btn btn-secondary">
+      <i class="bi bi-people"></i> Médecins
+    </a>
+  </div>
+</div>
+
+<div class="page-content">
+  <div class="card" style="height:700px">
+    <div class="content-loading-overlay" *ngIf="loading"></div>
+    <full-calendar #calendar [options]="calendarOptions"></full-calendar>
+  </div>
+</div>
+
+<!-- Unified Interactive Modal (Fixed Position) -->
+<div class="custom-modal-backdrop" *ngIf="showModal" (click)="closeModal()">
+  <div class="custom-modal" (click)="$event.stopPropagation()">
+    
+    <!-- Header -->
+    <div class="custom-modal-header">
+      <h2>🕒 Ajouter une Disponibilité</h2>
+      <button class="modal-close" (click)="closeModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer">&times;</button>
+    </div>
+
+    <div class="custom-modal-body">
+      
+      <!-- AVAILABILITY FORM -->
+      <form [formGroup]="availabilityForm" (ngSubmit)="submitAvailability()">
+        <div class="form-group">
+          <label class="form-label">Médecin <span class="required">*</span></label>
+          <select formControlName="medecin_id" class="form-control">
+            <option value="">-- Choisir un médecin --</option>
+            <option *ngFor="let m of medecins" [value]="m.id">Dr. {{ m.nom }} {{ m.prenom }}</option>
+          </select>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Jour de la semaine</label>
+            <select formControlName="jour_semaine" class="form-control">
+              <option [value]="1">Lundi</option>
+              <option [value]="2">Mardi</option>
+              <option [value]="3">Mercredi</option>
+              <option [value]="4">Jeudi</option>
+              <option [value]="5">Vendredi</option>
+              <option [value]="6">Samedi</option>
+              <option [value]="0">Dimanche</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Heure Début</label>
+            <input formControlName="heure_debut" type="time" class="form-control" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Heure Fin</label>
+            <input formControlName="heure_fin" type="time" class="form-control" />
+          </div>
+        </div>
+
+        <div class="custom-modal-footer">
+          <button type="button" class="btn btn-secondary" (click)="closeModal()">Annuler</button>
+          <button type="submit" class="btn btn-primary" [disabled]="availabilityForm.invalid">✅ Enregistrer la disponibilité</button>
+        </div>
+      </form>
+
+    </div>
+  </div>
+</div>

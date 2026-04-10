@@ -1,0 +1,64 @@
+<div class="verify-container">
+  <!-- LOADING -->
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border text-primary mb-3"></div>
+    <p>Vérification de l'authenticité en cours...</p>
+  </div>
+
+  <!-- ERROR -->
+  <div *ngIf="error && !loading" class="alert alert-danger shadow p-4 text-center">
+    <i class="bi bi-x-circle fs-1 mb-3 d-block"></i>
+    <h3>Document Non Reconnu</h3>
+    <p>Cette ordonnance n'a pas pu être certifiée. Veuillez contacter la clinique.</p>
+  </div>
+
+  <!-- SUCCESS: CERTIFIED -->
+  <div *ngIf="verificationResult && !loading" class="certified-card">
+    <div class="certified-header">
+      <div class="badge-certified">
+        <i class="bi bi-patch-check-fill"></i> DOCUMENT CERTIFIÉ
+      </div>
+      <div class="verify-date">Vérifié le {{ verificationResult.verified_at | date:'dd/MM/yyyy à HH:mm' }}</div>
+    </div>
+
+    <div class="certified-body">
+      <div class="row mb-4">
+        <div class="col-6">
+          <label class="text-muted small">Patient</label>
+          <div class="fw-bold fs-5">{{ verificationResult.original_data.patient.nom }} {{ verificationResult.original_data.patient.prenom }}</div>
+        </div>
+        <div class="col-6 text-end">
+          <label class="text-muted small">Médecin Prescripteur</label>
+          <div class="fw-bold">Dr. {{ verificationResult.original_data.medecin.nom }}</div>
+          <div class="small">{{ verificationResult.original_data.medecin.specialite }}</div>
+        </div>
+      </div>
+
+      <div class="prescription-id mb-4">
+        Référence Ordonnance : <code>{{ verificationResult.original_data.code_unique }}</code>
+      </div>
+
+      <h5 class="section-title">Médicaments Prescrits</h5>
+      <table class="table table-sm mt-2">
+        <thead>
+          <tr>
+            <th>Médicament</th>
+            <th>Dosage</th>
+            <th>Durée / Fréquence</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of verificationResult.original_data.items">
+            <td class="fw-bold">{{ item.nom_medicament }}</td>
+            <td>{{ item.dosage }}</td>
+            <td>{{ item.duree }} ({{ item.frequence }})</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="footer-notice mt-4">
+        <i class="bi bi-info-circle"></i> Cette page confirme que les données ci-dessus correspondent exactement à l'ordonnance originale enregistrée dans notre système de santé sécurisé.
+      </div>
+    </div>
+  </div>
+</div>

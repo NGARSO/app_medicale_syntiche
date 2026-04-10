@@ -1,0 +1,146 @@
+.bg-medical {
+  background: #f1f5f9;
+  min-height: calc(100vh - 70px);
+}
+
+.premium-card {
+  background: #fff;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.02);
+}
+
+.border-glow {
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: 0 10px 30px rgba(59, 130, 246, 0.05);
+}
+
+.patient-avatar {
+  width: 50px; height: 50px;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  color: #fff;
+  border-radius: 12px;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 800; font-size: 1.4rem;
+}
+
+.section-label-alt {
+  display: block;
+  margin-bottom: 12px;
+  font-weight: 800;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #94a3b8;
+  letter-spacing: 1px;
+  i { margin-right: 6px; color: #3b82f6; }
+}
+
+.diagnosis-box {
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border-left: 4px solid #3b82f6;
+}
+
+.diagnosis-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: #1e293b;
+  margin: 0;
+  font-style: italic;
+}
+
+.data-text {
+  color: #475569;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.vitals-dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.vital-widget {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 15px;
+  border-radius: 15px;
+  background: #fff;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s;
+  
+  &:hover { transform: translateX(5px); }
+  
+  .widget-icon {
+    width: 40px; height: 40px;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  
+  .widget-data {
+    display: flex; flex-direction: column;
+    .widget-val { font-size: 1.2rem; font-weight: 800; line-height: 1; }
+    .widget-unit { font-size: 0.7rem; color: #94a3b8; font-weight: 600; }
+  }
+  
+  &.blue { .widget-icon { background: #eff6ff; color: #3b82f6; } .widget-val { color: #1e40af; } }
+  &.green { .widget-icon { background: #f0fdf4; color: #22c55e; } .widget-val { color: #15803d; } }
+  &.red { .widget-icon { background: #fef2f2; color: #ef4444; } .widget-val { color: #b91c1c; } }
+}
+
+.med-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.med-item {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 12px;
+  background: #f8fafc;
+  border-radius: 10px;
+  
+  .med-icon { color: #3b82f6; font-size: 1.2rem; }
+  .med-name { font-weight: 700; color: #1e293b; }
+  .badge-dosage {
+    font-size: 0.7rem;
+    background: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-left: 8px;
+    border: 1px solid #e2e8f0;
+  }
+  .med-posology { font-size: 0.8rem; color: #64748b; margin-top: 2px; }
+}
+
+.btn-premium {
+  background: linear-gradient(135deg, #1e40af, #2563eb);
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  border: none;
+}
+
+.btn-glass-secondary {
+  background: rgba(0, 0, 0, 0.05);
+  color: #4a5568;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-weight: 700;
+  border: none;
+}
+
+.back-button {
+  font-size: 1.8rem;
+  color: #3b82f6;
+  opacity: 0.8;
+  &:hover { opacity: 1; }
+}

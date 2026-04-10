@@ -1,0 +1,116 @@
+<div class="glass-header topbar no-print">
+  <div class="d-flex align-items-center">
+    <a routerLink="/consultations" class="back-button me-3">
+      <i class="bi bi-arrow-left-circle-fill"></i>
+    </a>
+    <div>
+      <div class="topbar-title">Dossier Médical #{{ consultation?.id }}</div>
+      <div class="topbar-subtitle">Consultation du {{ consultation?.date_consultation | date:'dd MMMM yyyy' }}</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="btn btn-glass-secondary me-2" (click)="windowPrint()">
+      <i class="bi bi-printer me-2"></i>Imprimer Dossier
+    </button>
+    <button *ngIf="!consultation?.ordonnance" class="btn btn-premium" (click)="generateOrdonnance()">
+      <i class="bi bi-prescription2 me-2"></i>Rédiger Ordonnance
+    </button>
+  </div>
+</div>
+
+<div class="page-content bg-medical" *ngIf="consultation">
+  <div class="row g-4">
+    <!-- Colonne Gauche : Diagnostic & Notes -->
+    <div class="col-lg-8">
+      <div class="premium-card mb-4 main-record">
+        <div class="record-header border-bottom pb-3 mb-4">
+           <div class="d-flex align-items-center">
+             <div class="patient-avatar me-3">{{ consultation.patient.nom[0] }}</div>
+             <div>
+               <h4 class="mb-0 fw-bold">{{ consultation.patient.nom }} {{ consultation.patient.prenom }}</h4>
+               <span class="text-muted small">ID Patient: {{ consultation.patient.id }}</span>
+             </div>
+           </div>
+        </div>
+
+        <div class="diagnosis-box glass-inset mb-4">
+          <label class="section-label-alt"><i class="bi bi-activity"></i> Conclusion Diagnostique</label>
+          <p class="diagnosis-text">{{ consultation.diagnostic || 'Aucun diagnostic saisi pour cette séance.' }}</p>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label class="section-label-alt"><i class="bi bi-chat-dots"></i> Motif de consultation</label>
+            <p class="data-text">{{ consultation.motif }}</p>
+          </div>
+          <div class="col-md-6">
+            <label class="section-label-alt"><i class="bi bi-clipboard2-pulse"></i> Notes cliniques</label>
+            <p class="data-text">{{ consultation.notes || 'N/A' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Widget Ordonnance si elle existe -->
+      <div class="premium-card border-glow" *ngIf="consultation.ordonnance">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+          <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-capsule me-2"></i> Ordonnance associée</h5>
+          <a [routerLink]="['/ordonnances', consultation.ordonnance.id, 'view']" class="btn btn-sm btn-outline-primary">
+            <i class="bi bi-eye"></i> Voir l'imprimable
+          </a>
+        </div>
+        
+        <div class="med-list">
+          <div class="med-item" *ngFor="let item of consultation.ordonnance.items">
+            <div class="med-icon"><i class="bi bi-pills"></i></div>
+            <div class="med-details">
+              <div class="med-name">{{ item.nom_medicament }} <span class="badge-dosage">{{ item.dosage }}</span></div>
+              <div class="med-posology">{{ item.frequence }} — {{ item.duree }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne Droite : Constantes & Signature -->
+    <div class="col-lg-4">
+      <div class="premium-card sidebar-card">
+        <h5 class="mb-4 fw-bold"><i class="bi bi-heart-pulse icon-gradient-alt me-2"></i> Constantes Vitales</h5>
+        
+        <div class="vitals-dashboard">
+          <div class="vital-widget blue">
+            <div class="widget-icon"><i class="bi bi-gauge"></i></div>
+            <div class="widget-data">
+              <span class="widget-val">{{ consultation.tension || '--' }}</span>
+              <span class="widget-unit">mmHg (Tension)</span>
+            </div>
+          </div>
+
+          <div class="vital-widget green">
+            <div class="widget-icon"><i class="bi bi-speedometer2"></i></div>
+            <div class="widget-data">
+              <span class="widget-val">{{ consultation.poids || '--' }}</span>
+              <span class="widget-unit">kg (Poids)</span>
+            </div>
+          </div>
+
+          <div class="vital-widget red">
+            <div class="widget-icon"><i class="bi bi-thermometer-half"></i></div>
+            <div class="widget-data">
+              <span class="widget-val">{{ consultation.temperature || '--' }}</span>
+              <span class="widget-unit">°C (Température)</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="doctor-signature mt-5 pt-4 border-top">
+          <div class="small text-muted mb-2 text-center">Consultation effectuée par :</div>
+          <div class="d-flex align-items-center justify-content-center">
+            <i class="bi bi-person-check-fill me-2 text-primary"></i>
+            <span class="fw-bold">Dr. {{ consultation.medecin.nom }} {{ consultation.medecin.prenom }}</span>
+          </div>
+          <div class="text-center small text-muted">{{ consultation.medecin.specialite }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

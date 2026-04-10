@@ -1,0 +1,60 @@
+.prescription-container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #fff;
+  padding: 50px;
+  border-radius: 4px;
+  font-family: 'Inter', sans-serif;
+  color: #1a1a1a;
+}
+
+.prescription-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.medication-item {
+  page-break-inside: avoid;
+}
+
+.stamp-placeholder {
+  height: 80px;
+  width: 200px;
+  border: 1px dashed #e2e8f0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #94a3b8;
+  font-size: 0.8rem;
+  margin-top: 20px;
+}
+
+/* MEDIA QUERY POUR L'IMPRESSION REELLE */
+@media print {
+  .no-print, 
+  .sidebar, 
+  .topbar, 
+  nav {
+    display: none !important;
+  }
+
+  body, .app-layout, .main-content {
+    background: white !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .prescription-container {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    max-width: 100%;
+    box-shadow: none !important;
+    border: none !important;
+  }
+
+  @page {
+    margin: 2cm;
+  }
+}

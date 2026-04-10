@@ -1,0 +1,126 @@
+<div class="glass-header topbar">
+  <div class="d-flex align-items-center">
+    <a routerLink="/consultations" class="back-button me-3" title="Retour">
+      <i class="bi bi-arrow-left-circle-fill"></i>
+    </a>
+    <div>
+      <div class="topbar-title">Dossier de Consultation</div>
+      <div class="topbar-status"><span class="badge-pulsing"></span> Saisie clinique en cours</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="btn btn-glass-secondary me-2" routerLink="/consultations">Abandonner</button>
+    <button type="submit" class="btn btn-premium" (click)="onSubmit()" [disabled]="submitting || consultationForm.invalid">
+      <i class="bi bi-shield-check me-2"></i>
+      <span *ngIf="!submitting">Enregistrer le Dossier</span>
+      <span *ngIf="submitting" class="spinner-border spinner-border-sm"></span>
+    </button>
+  </div>
+</div>
+
+<div class="page-content bg-medical" [formGroup]="consultationForm">
+  <div class="row g-4">
+    <!-- Colonne Principale : Diagnostic -->
+    <div class="col-lg-8">
+      <div class="premium-card">
+        <div class="card-glass-header">
+          <i class="bi bi-person-badge-fill icon-gradient"></i>
+          <h5>Identification & Motif</h5>
+        </div>
+        
+        <div class="row g-4">
+          <div class="col-md-6">
+            <label class="premium-label">Patient sélectionné <span class="required">*</span></label>
+            <div class="custom-select-wrapper">
+              <i class="bi bi-person select-icon"></i>
+              <select formControlName="patient_id" class="premium-select">
+                <option value="">-- Choisir un patient --</option>
+                <option *ngFor="let p of patients" [value]="p.id">{{ p.nom }} {{ p.prenom }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="premium-label">Médecin traitant <span class="required">*</span></label>
+            <div class="custom-select-wrapper">
+              <i class="bi bi-bandaid select-icon"></i>
+              <select formControlName="medecin_id" class="premium-select">
+                <option value="">-- Choisir un médecin --</option>
+                <option *ngFor="let m of medecins" [value]="m.id">Dr. {{ m.nom }} {{ m.prenom }}</option>
+              </select>
+            </div>
+          </div>
+          <div class="col-12">
+            <label class="premium-label">Motif de la visite <span class="required">*</span></label>
+            <div class="input-with-icon">
+              <i class="bi bi-chat-dots"></i>
+              <input type="text" formControlName="motif" class="premium-input" placeholder="ex: Céphalées persistantes, contrôle annuel...">
+            </div>
+          </div>
+        </div>
+
+        <div class="section-divider mt-5 mb-4">
+          <span>Diagnostic Médical</span>
+        </div>
+
+        <div class="mb-4">
+          <label class="premium-label">Conclusion Diagnostique</label>
+          <textarea formControlName="diagnostic" class="premium-textarea" rows="5" placeholder="Décrivez ici votre conclusion après examen..."></textarea>
+        </div>
+
+        <div>
+          <label class="premium-label">Observations & Historique</label>
+          <textarea formControlName="notes" class="premium-textarea" rows="3" placeholder="Notes complémentaires, antécédents..."></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- Colonne Latérale : Constantes -->
+    <div class="col-lg-4">
+      <div class="premium-card sidebar-card">
+        <div class="card-glass-header">
+          <i class="bi bi-heart-pulse-fill icon-gradient-alt"></i>
+          <h5>Paramètres Vitaux</h5>
+        </div>
+        
+        <div class="vital-grid">
+          <div class="vital-item">
+            <label class="vital-label">Tension (mmHg)</label>
+            <div class="vital-input-group">
+              <i class="bi bi-gauge"></i>
+              <input type="text" formControlName="tension" placeholder="12/8">
+            </div>
+          </div>
+
+          <div class="vital-item">
+            <label class="vital-label">Poids (kg)</label>
+            <div class="vital-input-group">
+              <i class="bi bi-speedometer"></i>
+              <input type="number" formControlName="poids" placeholder="70">
+            </div>
+          </div>
+
+          <div class="vital-item">
+            <label class="vital-label">Température (°C)</label>
+            <div class="vital-input-group">
+              <i class="bi bi-thermometer-high"></i>
+              <input type="number" step="0.1" formControlName="temperature" placeholder="37.2">
+            </div>
+          </div>
+        </div>
+
+        <div class="date-picker-section mt-5">
+           <label class="premium-label text-center d-block mb-3">Date de Consultation</label>
+           <div class="premium-date-wrapper">
+             <i class="bi bi-calendar-check"></i>
+             <input type="date" formControlName="date_consultation" class="premium-date-input">
+           </div>
+        </div>
+
+        <div class="security-notice mt-5">
+          <i class="bi bi-info-circle-fill"></i>
+          <p>Ces données seront archivées de manière sécurisée dans le dossier patient HDS.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

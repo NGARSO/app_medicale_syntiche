@@ -1,0 +1,25 @@
+/* Styles pour la liste des consultations */
+.fw-bold { font-weight: 600; }
+.avatar-sm {
+    width: 32px;
+    height: 32px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 0.8rem;
+}
+.btn-icon {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: background 0.2s;
+    &:hover { background: rgba(0,0,0,0.05); }
+}

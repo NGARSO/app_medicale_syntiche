@@ -1,0 +1,87 @@
+<div class="no-print topbar">
+  <div>
+    <div class="topbar-title">
+      <a routerLink="/ordonnances" class="text-decoration-none text-inherit me-2">
+        <i class="bi bi-arrow-left"></i>
+      </a>
+      Aperçu de l'Ordonnance
+    </div>
+  </div>
+  <button class="btn btn-primary" (click)="print()">
+    <i class="bi bi-printer"></i> Imprimer / Enregistrer PDF
+  </button>
+</div>
+
+<div class="prescription-container shadow-sm" *ngIf="ordonnance">
+  <!-- EN-TETE CLINIQUE -->
+  <div class="prescription-header">
+    <div class="clinic-info">
+      <h2 class="text-primary fw-bold mb-0"><i class="bi bi-hospital"></i> CliniquePro</h2>
+      <p class="mb-0">Système de gestion médicale certifié</p>
+      <small>123 Avenue de la Santé, Casablanca</small><br>
+      <small>Tél: +212 5 22 00 00 00</small>
+    </div>
+    <div class="prescription-meta text-end">
+      <div class="h4 fw-bold">ORDONNANCE</div>
+      <div class="text-muted">Réf: {{ ordonnance.code_unique }}</div>
+      <div class="mt-2">Date: {{ ordonnance.date_prescription | date:'dd/MM/yyyy' }}</div>
+    </div>
+  </div>
+
+  <hr class="my-4">
+
+  <!-- PATIENT & MEDECIN -->
+  <div class="row mb-5">
+    <div class="col-6">
+      <div class="text-muted small text-uppercase">Patient</div>
+      <div class="h5 fw-bold mb-1">{{ ordonnance.patient.nom }} {{ ordonnance.patient.prenom }}</div>
+      <div *ngIf="ordonnance.patient.date_naissance">Né(e) le {{ ordonnance.patient.date_naissance | date:'dd/MM/yyyy' }}</div>
+    </div>
+    <div class="col-6 text-end">
+      <div class="text-muted small text-uppercase">Médecin Prescripteur</div>
+      <div class="h5 fw-bold mb-1">Dr. {{ ordonnance.medecin.nom }} {{ ordonnance.medecin.prenom }}</div>
+      <div>{{ ordonnance.medecin.specialite }}</div>
+      <div class="small">Matricule: {{ ordonnance.medecin.matricule }}</div>
+    </div>
+  </div>
+
+  <!-- MEDICAMENTS -->
+  <div class="medications-body">
+    <div class="h6 text-primary fw-bold text-uppercase border-bottom pb-2 mb-3">Prescription</div>
+    
+    <div class="medication-item mb-4" *ngFor="let item of ordonnance.items; let i = index">
+      <div class="d-flex justify-content-between">
+        <div class="fw-bold">{{ i + 1 }}. {{ item.nom_medicament }} <span class="text-muted" *ngIf="item.dosage">({{ item.dosage }})</span></div>
+        <div class="text-muted" *ngIf="item.duree">Durée: {{ item.duree }}</div>
+      </div>
+      <div class="ms-3 mt-1 text-secondary">
+        <i class="bi bi-arrow-return-right"></i> {{ item.frequence }} 
+        <span class="ms-3" *ngIf="item.instructions">— {{ item.instructions }}</span>
+      </div>
+    </div>
+
+    <!-- NOTES -->
+    <div class="mt-5" *ngIf="ordonnance.notes_generales">
+      <div class="h6 fw-bold border-bottom pb-2 mb-2">Instructions diététiques et conseils</div>
+      <p class="font-italic text-secondary">{{ ordonnance.notes_generales }}</p>
+    </div>
+  </div>
+
+  <!-- FOOTER & QR CODE -->
+  <div class="prescription-footer mt-5 pt-5 border-top">
+    <div class="row align-items-center">
+      <div class="col-8">
+        <div class="stamp-placeholder mb-2">Cachet et Signature</div>
+        <div class="small text-muted fst-italic">
+            Cette ordonnance est valable jusqu'au {{ (ordonnance.date_expiration | date:'dd/MM/yyyy') || 'fin de traitement' }}.
+        </div>
+      </div>
+      <div class="col-4 text-center">
+        <!-- QR CODE CERTIFICATION -->
+        <img [src]="ordonnance.qr_code_url" alt="QR Code Certification" class="img-fluid rounded border p-1" style="max-height: 120px;">
+        <div class="mt-1 small text-primary fw-bold" style="font-size: 0.7rem;">DOCUMENT CERTIFIÉ</div>
+        <div class="text-muted" style="font-size: 0.6rem;">Scannez pour vérifier</div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,113 @@
+<div class="glass-header topbar no-print">
+  <div class="d-flex align-items-center">
+    <div class="icon-circle me-3"><i class="bi bi-prescription2"></i></div>
+    <div>
+      <div class="topbar-title">Rédaction d'Ordonnance</div>
+      <div class="topbar-status" *ngIf="consultation">Patient : <strong>{{ consultation.patient.nom }} {{ consultation.patient.prenom }}</strong></div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <button type="button" class="btn btn-glass-secondary me-2" (click)="ordonnanceForm.reset()">Réinitialiser</button>
+    <button type="submit" class="btn btn-premium" (click)="submit()" [disabled]="submitting || ordonnanceForm.invalid">
+      <i class="bi bi-printer me-2"></i>
+      <span *ngIf="!submitting">Valider & Imprimer</span>
+      <span *ngIf="submitting" class="spinner-border spinner-border-sm"></span>
+    </button>
+  </div>
+</div>
+
+<div class="page-content bg-medical" [formGroup]="ordonnanceForm">
+  <div class="row g-4">
+    <!-- Liste des médicaments -->
+    <div class="col-lg-8">
+      <div class="form-section-title">
+        <i class="bi bi-capsule-pill"></i> Médicaments Prescrits
+      </div>
+      
+      <div formArrayName="items">
+        <div *ngFor="let item of items.controls; let i=index" [formGroupName]="i" class="medication-card glass-card mb-4">
+          <div class="card-wave"></div>
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div class="medication-number">Ligne #{{ i + 1 }}</div>
+            <button class="btn-remove-pills" (click)="removeItem(i)" *ngIf="items.length > 1" title="Supprimer">
+              <i class="bi bi-x-lg"></i>
+            </button>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-7">
+              <label class="premium-label">Nom du médicament <span class="required">*</span></label>
+              <div class="input-glow">
+                <input type="text" formControlName="nom_medicament" class="premium-input-alt" placeholder="ex: AUGMENTIN 1g">
+              </div>
+            </div>
+            <div class="col-md-5">
+              <label class="premium-label">Dosage précis</label>
+              <input type="text" formControlName="dosage" class="premium-input-alt" placeholder="ex: 1 comprimé">
+            </div>
+            <div class="col-md-6">
+              <label class="premium-label">Fréquence de prise</label>
+              <div class="input-with-icon-alt">
+                <i class="bi bi-alarm"></i>
+                <input type="text" formControlName="frequence" class="premium-input-alt" placeholder="ex: 3 fois par jour (Matin/Midi/Soir)">
+              </div>
+            </div>
+            <div class="col-md-6">
+              <label class="premium-label">Durée du traitement</label>
+              <div class="input-with-icon-alt">
+                <i class="bi bi-calendar-range"></i>
+                <input type="text" formControlName="duree" class="premium-input-alt" placeholder="ex: 7 jours">
+              </div>
+            </div>
+            <div class="col-12">
+              <label class="premium-label">Instructions particulières</label>
+              <textarea formControlName="instructions" class="premium-input-alt" rows="2" placeholder="ex: A prendre au milieu du repas..."></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn-add-medication" (click)="addItem()">
+        <i class="bi bi-plus-circle-dotted me-2"></i> Ajouter une ligne de prescription
+      </button>
+    </div>
+
+    <!-- Options & Signature -->
+    <div class="col-lg-4">
+      <div class="form-section-title">
+        <i class="bi bi-gear-wide-connected"></i> Paramètres
+      </div>
+      
+      <div class="premium-card sidebar-card glass-card">
+        <div class="mb-4">
+          <label class="premium-label">Date d'émission</label>
+          <input type="date" formControlName="date_prescription" class="premium-input-alt">
+        </div>
+        
+        <div class="mb-4">
+          <label class="premium-label">Validité (Facultatif)</label>
+          <input type="date" formControlName="date_expiration" class="premium-input-alt">
+        </div>
+
+        <div class="mb-0">
+          <label class="premium-label">Consignes générales</label>
+          <textarea formControlName="notes_generales" class="premium-input-alt" rows="5" placeholder="Repos, hydratation, contrôle dans 15 jours..."></textarea>
+        </div>
+
+        <div class="qr-preview-box mt-5">
+          <div class="qr-placeholder">
+            <i class="bi bi-qr-code-scan"></i>
+          </div>
+          <div class="qr-text">
+            <strong>Système Certifié</strong>
+            <p>Une signature numérique QR-Code sera générée automatiquement sur le document final.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="alert alert-premium mt-4">
+        <i class="bi bi-check2-circle me-2"></i> Données prêtes pour archivage.
+      </div>
+    </div>
+  </div>
+</div>
