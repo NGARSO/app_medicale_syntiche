@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Tymon\JWTAuth\Contracts\JWTSubject;
+use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements JWTSubject
 {
@@ -16,6 +17,7 @@ class User extends Authenticatable implements JWTSubject
         'email',
         'password',
         'role',
+        'photo_profil',
     ];
 
     protected $hidden = [
@@ -23,12 +25,22 @@ class User extends Authenticatable implements JWTSubject
         'remember_token',
     ];
 
+    protected $appends = ['photo_url'];
+
     protected function casts(): array
     {
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    public function getPhotoUrlAttribute()
+    {
+        if ($this->photo_profil) {
+            return asset('storage/' . $this->photo_profil);
+        }
+        return 'https://ui-avatars.com/api/?name=' . urlencode($this->username) . '&background=6366f1&color=fff';
     }
 
     public function getJWTIdentifier()

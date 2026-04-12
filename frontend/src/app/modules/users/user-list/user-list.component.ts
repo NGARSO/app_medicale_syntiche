@@ -124,12 +124,17 @@ export class UserListComponent implements OnInit {
   }
 
   getRoleClass(role: string): string {
-    const map: any = { ADMIN: 'badge-danger', MEDECIN: 'badge-info', USER: 'badge-warning' };
+    const map: any = { ADMIN: 'badge-danger', MEDECIN: 'badge-info', USER: 'badge-success' };
     return map[role] || 'badge-secondary';
   }
 
   getRoleIcon(role: string): string {
-    const map: any = { ADMIN: 'bi-shield-fill', MEDECIN: 'bi-person-badge', USER: 'bi-person' };
+    const map: any = { ADMIN: 'bi-shield-fill', MEDECIN: 'bi-person-badge', USER: 'bi-person-heart' };
     return map[role] || 'bi-question';
+  }
+
+  getRoleLabel(role: string): string {
+    const map: any = { ADMIN: 'ADMIN', MEDECIN: 'MÉDECIN', USER: 'PATIENT' };
+    return map[role] || role;
   }
 }

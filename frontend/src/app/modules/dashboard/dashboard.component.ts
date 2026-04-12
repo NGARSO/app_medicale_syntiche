@@ -488,6 +488,6 @@ export class DashboardComponent implements OnInit {
 
   exportAll(): void {
     const token = localStorage.getItem('token');
-    window.open(`http://localhost:8000/api/export/rendez-vous?token=${token}`, '_blank');
+    window.open(`/api/export/rendez-vous?token=${token}`, '_blank');
   }
 }

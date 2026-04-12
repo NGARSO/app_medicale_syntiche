@@ -88,7 +88,18 @@ export class LoginComponent {
     this.authService.login(this.loginForm.value as any).subscribe({
       next: () => this.router.navigate(['/dashboard']),
       error: (err) => {
-        this.error = err.error?.message || 'Identifiants invalides. Réessayez.';
+        console.error('Login error:', err);
+        if (err.status === 0) {
+          this.error = 'Le serveur est inaccessible. Vérifiez qu\'il est bien démarré (php artisan serve).';
+        } else if (err.status === 401) {
+          this.error = 'Identifiants invalides. Veuillez réessayer.';
+        } else if (err.status >= 500) {
+          this.error = 'Erreur interne du serveur (500). Veuillez consulter les logs du backend.';
+        } else if (err.message?.includes('Http failure during parsing')) {
+          this.error = 'Réponse du serveur invalide (Non-JSON). Vérifiez la configuration du backend.';
+        } else {
+          this.error = err.error?.message || 'Une erreur inattendue est survenue.';
+        }
         this.loading = false;
       }
     });

@@ -107,7 +107,7 @@ import { AuthService } from '../../core/services/auth.service';
         <div class="sidebar-footer">
           <div class="sidebar-user" [class.p-1]="isCollapsed">
             <div class="avatar" [title]="userName">
-              <img *ngIf="user?.photo_profil" [src]="'http://localhost:8000/storage/' + user.photo_profil" 
+              <img *ngIf="user?.photo_profil" [src]="'/storage/' + user.photo_profil" 
                 style="width:100%;height:100%;object-fit:cover;border-radius:50%">
               <span *ngIf="!user?.photo_profil">{{ userInitial }}</span>
             </div>

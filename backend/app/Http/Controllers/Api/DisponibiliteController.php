@@ -12,7 +12,7 @@ class DisponibiliteController extends Controller
     public function index(Request $request)
     {
         $medecinId = $request->get('medecin_id');
-        $query = Disponibilite::query();
+        $query = Disponibilite::with('medecin');
         if ($medecinId) $query->where('medecin_id', $medecinId);
         return response()->json($query->orderBy('jour_semaine')->orderBy('heure_debut')->get());
     }

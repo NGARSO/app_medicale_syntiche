@@ -4,6 +4,9 @@
     <div>
       <div class="topbar-title">Rédaction d'Ordonnance</div>
       <div class="topbar-status" *ngIf="consultation">Patient : <strong>{{ consultation.patient.nom }} {{ consultation.patient.prenom }}</strong></div>
+      <div class="topbar-status text-danger" *ngIf="!consultation && !loading">
+        <i class="bi bi-exclamation-triangle me-1"></i> Aucune consultation liée. Veuillez passer par le dossier patient.
+      </div>
     </div>
   </div>
   <div class="header-actions">

@@ -1,20 +1,45 @@
+<!-- Topbar -->
 <div class="topbar">
   <div>
-    <div class="topbar-title"><i class="bi bi-folder2-open"></i> Dossiers Médicaux</div>
-    <div class="topbar-subtitle">Historique des consultations et diagnostics</div>
+    <div class="topbar-title">
+      <i class="bi bi-folder2-open"></i> 
+      Dossiers Médicaux
+    </div>
+    <div class="topbar-subtitle">
+      Historique des consultations et diagnostics 
+      <span class="text-primary fw-medium">(Total: {{ total }})</span>
+    </div>
   </div>
-  <div *ngIf="userRole === 'MEDECIN' || userRole === 'ADMIN'">
-    <a routerLink="/consultations/new" class="btn btn-primary">
-      <i class="bi bi-plus-lg"></i> Nouvelle Consultation
-    </a>
+
+  <div class="d-flex gap-3 align-items-center">
+    <!-- Recherche -->
+    <div class="search-box">
+      <i class="bi bi-search"></i>
+      <input
+        type="text"
+        class="form-control"
+        placeholder="Rechercher un patient..."
+        [ngModel]="searchTerm"
+        (input)="onSearch($event)"
+      >
+    </div>
+
+    <!-- Bouton Nouvelle consultation -->
+    <div *ngIf="userRole === 'MEDECIN' || userRole === 'ADMIN'">
+      <a routerLink="/consultations/new" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> Nouvelle consultation
+      </a>
+    </div>
   </div>
 </div>
 
+<!-- Contenu principal -->
 <div class="page-content">
-  <div class="card">
+  <div class="card overflow-hidden">
+
     <div class="table-responsive">
-      <table class="table">
-        <thead>
+      <table class="table table-hover align-middle mb-0">
+        <thead class="table-light">
           <tr>
             <th>Date</th>
             <th>Patient</th>
@@ -25,51 +50,130 @@
           </tr>
         </thead>
         <tbody>
+
+          <!-- Lignes de données -->
           <tr *ngFor="let cons of consultations">
             <td>
-              <div class="fw-bold">{{ cons.date_consultation | date:'dd/MM/yyyy' }}</div>
-              <small class="text-muted">ID: #{{ cons.id }}</small>
+              <div class="fw-bold">{{ cons?.date_consultation | date:'dd/MM/yyyy' }}</div>
+              <small class="text-muted">ID: #{{ cons?.id }}</small>
             </td>
             <td>
-              <div class="d-flex align-items-center">
-                <div class="avatar-sm me-2">{{ cons.patient.nom[0] }}</div>
+              <div class="d-flex align-items-center" *ngIf="cons?.patient; else unknownPatient">
+                <div class="avatar-sm me-2">
+                  {{ cons.patient.nom ? cons.patient.nom[0].toUpperCase() : 'P' }}
+                </div>
                 <span>{{ cons.patient.nom }} {{ cons.patient.prenom }}</span>
               </div>
+              <ng-template #unknownPatient>
+                <span class="text-muted">Patient inconnu</span>
+              </ng-template>
             </td>
-            <td>Dr. {{ cons.medecin.nom }}</td>
             <td>
-              <span class="text-truncate d-inline-block" style="max-width: 200px;" [title]="cons.motif">
-                {{ cons.motif }}
+              <span *ngIf="cons?.medecin; else unknownDoctor">
+                Dr. {{ cons.medecin.nom }}
+              </span>
+              <ng-template #unknownDoctor>
+                <span class="text-muted">Non assigné</span>
+              </ng-template>
+            </td>
+            <td>
+              <span class="text-truncate d-inline-block" 
+                    style="max-width: 220px;" 
+                    [title]="cons?.motif">
+                {{ cons?.motif || '—' }}
               </span>
             </td>
             <td>
-              <span class="badge badge-light" *ngIf="cons.tension">{{ cons.tension }}</span>
-              <span class="ms-1" *ngIf="cons.poids">{{ cons.poids }}kg</span>
+              <span class="badge bg-light text-dark" *ngIf="cons?.tension">
+                {{ cons.tension }}
+              </span>
+              <span class="ms-2" *ngIf="cons?.poids">
+                {{ cons.poids }} kg
+              </span>
+              <span class="text-muted" *ngIf="!cons?.tension && !cons?.poids">—</span>
             </td>
             <td class="text-end">
               <div class="btn-group">
-                <a [routerLink]="['/consultations', cons.id]" class="btn btn-icon" title="Voir détails">
+                <!-- Voir détails -->
+                <a [routerLink]="['/consultations', cons?.id]" 
+                   class="btn btn-icon btn-light" 
+                   title="Voir détails">
                   <i class="bi bi-eye"></i>
                 </a>
-                <a *ngIf="cons.ordonnance" [routerLink]="['/ordonnances', cons.ordonnance.id, 'view']" class="btn btn-icon text-primary" title="Voir l'ordonnance">
-                  <i class="bi bi-prescription2"></i>
+
+                <!-- Voir ordonnance -->
+                <a *ngIf="cons?.ordonnance" 
+                   [routerLink]="['/ordonnances', cons.ordonnance.id, 'view']" 
+                   class="btn btn-sm btn-glass text-primary ms-2" 
+                   title="Voir l'ordonnance">
+                  <i class="bi bi-prescription2 me-1"></i> Ordonnance
                 </a>
+
+                <!-- Aucune ordonnance -->
+                <button *ngIf="!cons?.ordonnance && (userRole === 'MEDECIN' || userRole === 'ADMIN')" 
+                        [routerLink]="['/consultations', cons?.id]"
+                        class="btn btn-sm btn-outline-secondary ms-2 opacity-50">
+                  Aucune ord.
+                </button>
               </div>
             </td>
           </tr>
+
+          <!-- Skeleton Loader (pendant le chargement initial) -->
+          <ng-container *ngIf="loading">
+            <tr *ngFor="let i of [1,2,3,4,5]">
+              <td colspan="6">
+                <div class="skeleton-row"></div>
+              </td>
+            </tr>
+          </ng-container>
+
+          <!-- État vide -->
           <tr *ngIf="consultations.length === 0 && !loading">
             <td colspan="6" class="text-center py-5">
-              <i class="bi bi-inbox fs-1 text-muted"></i>
-              <p class="mt-2 text-muted">Aucune consultation trouvée.</p>
+              <div class="py-4">
+                <i class="bi bi-inbox fs-1 text-muted opacity-50"></i>
+                <p class="mt-3 text-muted fs-5">
+                  {{ searchTerm ? 'Aucun résultat trouvé pour cette recherche.' : 'Aucune consultation enregistrée pour le moment.' }}
+                </p>
+                <button *ngIf="searchTerm" 
+                        (click)="clearSearch()" 
+                        class="btn btn-sm btn-outline-secondary mt-2">
+                  Réinitialiser la recherche
+                </button>
+              </div>
             </td>
           </tr>
+
         </tbody>
       </table>
     </div>
 
-    <div class="card-footer d-flex justify-content-between align-items-center" *ngIf="consultations.length > 0">
-      <div class="text-muted">Affichage de {{ consultations.length }} consultations</div>
-      <!-- Pagination simple possible ici -->
+    <!-- Footer - Load More -->
+    <div class="card-footer text-center py-3" *ngIf="currentPage < lastPage && !loading">
+      <button 
+        class="btn btn-glass btn-sm px-4"
+        (click)="loadMore()"
+        [disabled]="loadingMore">
+        
+        <span *ngIf="!loadingMore">
+          Charger plus de consultations
+        </span>
+        <span *ngIf="loadingMore">
+          <span class="spinner-border spinner-border-sm me-2"></span>
+          Chargement...
+        </span>
+      </button>
     </div>
+
+    <!-- Fin de liste -->
+    <div class="card-footer bg-light-subtle py-3" 
+         *ngIf="consultations.length > 0 && currentPage >= lastPage && !loading">
+      <div class="text-center text-muted small">
+        <i class="bi bi-check2-all me-1"></i>
+        Fin de la liste — {{ consultations.length }} consultation{{ consultations.length > 1 ? 's' : '' }}
+      </div>
+    </div>
+
   </div>
 </div>

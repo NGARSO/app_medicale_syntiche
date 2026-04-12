@@ -92,7 +92,7 @@ export class ResetPasswordComponent {
     this.loading = true;
     this.error = '';
 
-    this.http.post<any>('http://localhost:8000/api/reset-password', this.resetForm.value).subscribe({
+    this.http.post<any>('/api/reset-password', this.resetForm.value).subscribe({
       next: (res) => {
         this.loading = false;
         this.success = res.message;

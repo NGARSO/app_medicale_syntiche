@@ -7,12 +7,17 @@ import { Observable } from 'rxjs';
 })
 export class OrdonnanceService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/ordonnances';
+  private apiUrl = '/api/ordonnances';
 
-  getAll(page: number = 1, size: number = 10): Observable<any> {
-    const params = new HttpParams()
+  getAll(page: number = 1, size: number = 10, search: string = ''): Observable<any> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    
+    if (search) {
+      params = params.set('search', search);
+    }
+    
     return this.http.get(this.apiUrl, { params });
   }
 
@@ -34,6 +39,6 @@ export class OrdonnanceService {
 
   // Vérification publique d'une ordonnance (Scan QR Code)
   verify(code: string): Observable<any> {
-    return this.http.get(`http://localhost:8000/api/verify-prescription/${code}`);
+    return this.http.get(`/api/verify-prescription/${code}`);
   }
 }

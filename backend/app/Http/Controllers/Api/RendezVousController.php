@@ -21,8 +21,14 @@ class RendezVousController extends Controller
 
         // Filtrage par rôle
         if ($user->role === 'MEDECIN') {
+            if (!$user->medecin) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('medecin_id', $user->medecin->id);
         } elseif ($user->role === 'USER') {
+            if (!$user->patient) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('patient_id', $user->patient->id);
         } elseif ($request->get('medecinId')) {
             // Un Admin peut filtrer par médecin
@@ -30,6 +36,10 @@ class RendezVousController extends Controller
         }
 
         if ($statut) $query->where('statut', $statut);
+
+        if ($request->has('no_paginate')) {
+            return response()->json($query->orderBy('date_heure', 'desc')->get());
+        }
 
         return response()->json($query->orderBy('date_heure', 'desc')->paginate($size));
     }

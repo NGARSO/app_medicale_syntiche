@@ -7,12 +7,17 @@ import { Observable } from 'rxjs';
 })
 export class ConsultationService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/consultations';
+  private apiUrl = '/api/consultations';
 
-  getAll(page: number = 1, size: number = 10): Observable<any> {
-    const params = new HttpParams()
+  getAll(page: number = 1, size: number = 10, search: string = ''): Observable<any> {
+    let params = new HttpParams()
       .set('page', page.toString())
       .set('size', size.toString());
+    
+    if (search) {
+      params = params.set('search', search);
+    }
+    
     return this.http.get(this.apiUrl, { params });
   }
 

@@ -16,7 +16,7 @@ export interface User {
 })
 export class UserService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/users';
+  private apiUrl = '/api/users';
 
   getAll(page: number = 1): Observable<any> {
     return this.http.get<any>(`${this.apiUrl}?page=${page}`);

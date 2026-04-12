@@ -19,13 +19,33 @@ class OrdonnanceController extends Controller
         $user = Auth::user();
         $query = Ordonnance::with(['patient', 'medecin', 'items']);
 
+        // RBAC
         if ($user->role === 'MEDECIN') {
+            if (!$user->medecin) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('medecin_id', $user->medecin->id);
         } elseif ($user->role === 'USER') {
+            if (!$user->patient) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('patient_id', $user->patient->id);
         }
 
-        return response()->json($query->orderBy('date_prescription', 'desc')->paginate(10));
+        // Recherche
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('code_unique', 'like', "%{$search}%")
+                  ->orWhereHas('patient', function ($pq) use ($search) {
+                      $pq->where('nom', 'like', "%{$search}%")
+                        ->orWhere('prenom', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $perPage = $request->get('size', 10);
+        return response()->json($query->orderBy('date_prescription', 'desc')->paginate($perPage));
     }
 
     /**
@@ -49,12 +69,33 @@ class OrdonnanceController extends Controller
             'items.*.instructions' => 'nullable|string',
         ]);
 
+        // Détermination du médecin prescripteur
+        $medecinId = null;
+        
+        // 1. Priorité au médecin de la consultation liée
+        $consultation = \App\Models\Consultation::find($validated['consultation_id']);
+        if ($consultation) {
+            $medecinId = $consultation->medecin_id;
+        }
+        
+        // 2. Fallback sur le médecin connecté si celui de la consultation est introuvable
+        if (!$medecinId && $user->medecin) {
+            $medecinId = $user->medecin->id;
+        }
+
+        // 3. Si toujours rien (ex: Admin sans profil médecin), on bloque avec un message clair
+        if (!$medecinId) {
+            return response()->json([
+                'message' => "Impossible d'identifier le médecin prescripteur. Veuillez vérifier le dossier médical."
+            ], 403);
+        }
+
         // Code unique pour le QR Code de certification
         $codeUnique = 'PRESC-' . strtoupper(Str::random(10));
 
         $ordonnance = Ordonnance::create([
             'consultation_id' => $validated['consultation_id'],
-            'medecin_id' => $user->medecin->id,
+            'medecin_id' => $medecinId,
             'patient_id' => $validated['patient_id'],
             'code_unique' => $codeUnique,
             'date_prescription' => $validated['date_prescription'],

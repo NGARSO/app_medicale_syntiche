@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Patient;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class PatientController extends Controller
 {
@@ -32,18 +35,44 @@ class PatientController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            // Infos Patient
             'nom'            => 'required|string|max:100',
             'prenom'         => 'required|string|max:100',
             'date_naissance' => 'required|date',
             'cin'            => 'required|string|unique:patients',
-            'email'          => 'nullable|email|unique:patients',
+            'email'          => 'nullable|email|unique:patients|unique:users,email',
             'telephone'      => 'required|string|max:20',
             'sexe'           => 'required|in:M,F',
             'groupe_sanguin' => 'nullable|string|max:5',
             'antecedents'    => 'nullable|string',
+            
+            // Infos Compte (Optionnel mais recommandé)
+            'username'       => 'nullable|string|unique:users',
+            'password'       => 'nullable|string|min:6',
         ]);
 
-        return response()->json(Patient::create($validated), 201);
+        return DB::transaction(function () use ($validated) {
+            $userId = null;
+
+            // Création du compte si username/password fournis
+            if (!empty($validated['username']) && !empty($validated['password'])) {
+                $user = User::create([
+                    'username' => $validated['username'],
+                    'email'    => $validated['email'] ?? ($validated['username'] . '@patient.local'),
+                    'password' => Hash::make($validated['password']),
+                    'role'     => 'USER',
+                ]);
+                $userId = $user->id;
+            }
+
+            // Création du patient
+            $profileData = collect($validated)->except(['username', 'password'])->toArray();
+            $profileData['user_id'] = $userId;
+            
+            $patient = Patient::create($profileData);
+            
+            return response()->json($patient, 201);
+        });
     }
 
     public function show($id)

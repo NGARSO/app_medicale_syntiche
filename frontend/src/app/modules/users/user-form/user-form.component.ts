@@ -41,7 +41,7 @@ import { UserService, User } from '../../../core/services/user.service';
               <div class="search-bar">
                 <i class="bi bi-shield-check search-icon"></i>
                 <select formControlName="role" class="form-control">
-                  <option value="USER">Patient (USER)</option>
+                  <option value="USER">Patient</option>
                   <option value="MEDECIN">Médecin</option>
                   <option value="ADMIN">Administrateur</option>
                 </select>

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
 import { ConsultationService } from '../../../core/services/consultation.service';
@@ -20,6 +20,7 @@ export class ConsultationFormComponent implements OnInit {
   private medService = inject(MedecinService);
   private router = inject(Router);
   private route = inject(ActivatedRoute);
+  private cdr = inject(ChangeDetectorRef);
 
   consultationForm!: FormGroup;
   patients: any[] = [];
@@ -56,8 +57,14 @@ export class ConsultationFormComponent implements OnInit {
   }
 
   loadData() {
-    this.patientService.getAll(1, 100).subscribe(res => this.patients = res.data);
-    this.medService.getAll(1, 100).subscribe(res => this.medecins = res.data);
+    this.patientService.getAll(1, 100).subscribe(res => {
+      this.patients = res.data;
+      this.cdr.detectChanges();
+    });
+    this.medService.getAll(1, 100).subscribe(res => {
+      this.medecins = res.data;
+      this.cdr.detectChanges();
+    });
   }
 
   onSubmit() {

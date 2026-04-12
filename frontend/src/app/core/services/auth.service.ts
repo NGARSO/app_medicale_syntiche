@@ -1,12 +1,12 @@
 import { Injectable, PLATFORM_ID, Inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { BehaviorSubject, Observable, tap } from 'rxjs';
+import { BehaviorSubject, Observable, tap, catchError, throwError } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
 
 @Injectable({ providedIn: 'root' })
 export class AuthService {
-    private apiUrl = 'http://localhost:8000/api';
+    private apiUrl = '/api';
     private loggedIn$: BehaviorSubject<boolean>;
 
     constructor(
@@ -34,6 +34,14 @@ export class AuthService {
                     localStorage.setItem('user', JSON.stringify(res.user));
                 }
                 this.loggedIn$.next(true);
+            }),
+            catchError(err => {
+                console.group('AuthService Login Error');
+                console.error('Status:', err.status);
+                console.error('Message:', err.message);
+                console.error('Error Body:', err.error);
+                console.groupEnd();
+                return throwError(() => err);
             })
         );
     }

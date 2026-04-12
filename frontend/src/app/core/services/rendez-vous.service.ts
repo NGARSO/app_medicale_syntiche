@@ -4,14 +4,15 @@ import { Observable } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class RendezVousService {
-private apiUrl = 'http://localhost:8000/api/rendez-vous';
+private apiUrl = '/api/rendez-vous';
 
   constructor(private http: HttpClient) {}
 
-  getAll(filters: { statut?: string; medecinId?: number } = {}, page = 1, size = 10): Observable<any> {
+  getAll(filters: { statut?: string; medecinId?: number; noPaginate?: boolean } = {}, page = 1, size = 10): Observable<any> {
     let params = new HttpParams().set('page', page).set('size', size);
     if (filters.statut) params = params.set('statut', filters.statut);
     if (filters.medecinId) params = params.set('medecinId', filters.medecinId);
+    if (filters.noPaginate) params = params.set('no_paginate', '1');
     return this.http.get(this.apiUrl, { params });
   }
 

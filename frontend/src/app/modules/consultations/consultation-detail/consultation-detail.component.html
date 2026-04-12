@@ -33,42 +33,34 @@
            </div>
         </div>
 
+        <!-- Ordonnance Section (Ultra-Prominent if exists) -->
+        <div class="premium-card prescription-hero mb-4" *ngIf="consultation.ordonnance">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0 fw-bold"><i class="bi bi-prescription2 text-primary me-2"></i> Ordonnance associée</h5>
+            <div class="actions">
+              <a [routerLink]="['/ordonnances', consultation.ordonnance.id, 'view']" class="btn btn-primary btn-sm px-3">
+                <i class="bi bi-printer me-2"></i>Imprimer l'ordonnance
+              </a>
+            </div>
+          </div>
+          
+          <div class="med-grid-preview">
+            <div class="med-item-badge" *ngFor="let item of consultation.ordonnance.items">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-capsule-pill me-2"></i>
+                <div>
+                  <div class="fw-bold">{{ item.nom_medicament }}</div>
+                  <div class="posology-short">{{ item.dosage }} — {{ item.frequence }}</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="diagnosis-box glass-inset mb-4">
           <label class="section-label-alt"><i class="bi bi-activity"></i> Conclusion Diagnostique</label>
           <p class="diagnosis-text">{{ consultation.diagnostic || 'Aucun diagnostic saisi pour cette séance.' }}</p>
         </div>
-
-        <div class="row g-4">
-          <div class="col-md-6">
-            <label class="section-label-alt"><i class="bi bi-chat-dots"></i> Motif de consultation</label>
-            <p class="data-text">{{ consultation.motif }}</p>
-          </div>
-          <div class="col-md-6">
-            <label class="section-label-alt"><i class="bi bi-clipboard2-pulse"></i> Notes cliniques</label>
-            <p class="data-text">{{ consultation.notes || 'N/A' }}</p>
-          </div>
-        </div>
-      </div>
-
-      <!-- Widget Ordonnance si elle existe -->
-      <div class="premium-card border-glow" *ngIf="consultation.ordonnance">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-          <h5 class="mb-0 fw-bold text-primary"><i class="bi bi-capsule me-2"></i> Ordonnance associée</h5>
-          <a [routerLink]="['/ordonnances', consultation.ordonnance.id, 'view']" class="btn btn-sm btn-outline-primary">
-            <i class="bi bi-eye"></i> Voir l'imprimable
-          </a>
-        </div>
-        
-        <div class="med-list">
-          <div class="med-item" *ngFor="let item of consultation.ordonnance.items">
-            <div class="med-icon"><i class="bi bi-pills"></i></div>
-            <div class="med-details">
-              <div class="med-name">{{ item.nom_medicament }} <span class="badge-dosage">{{ item.dosage }}</span></div>
-              <div class="med-posology">{{ item.frequence }} — {{ item.duree }}</div>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <!-- Colonne Droite : Constantes & Signature -->

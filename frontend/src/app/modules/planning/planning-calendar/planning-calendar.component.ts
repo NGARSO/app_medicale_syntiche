@@ -11,7 +11,7 @@ import { LoadingService } from '../../../core/services/loading.service';
 import { MedecinService } from '../../../core/services/medecin.service';
 import { PatientService } from '../../../core/services/patient.service';
 import { RendezVousService } from '../../../core/services/rendez-vous.service';
-import { debounceTime, distinctUntilChanged, switchMap, of } from 'rxjs';
+import { debounceTime, distinctUntilChanged, switchMap, of, forkJoin, map } from 'rxjs';
 import { CalendarOptions } from '@fullcalendar/core';
 
 @Component({
@@ -86,28 +86,32 @@ export class PlanningCalendarComponent implements OnInit {
   loading = false;
 
   ngOnInit() {
-    // Liaison explicite des événements au démarrage
-    this.calendarOptions = {
-      ...this.calendarOptions,
-      dateClick: (info: any) => this.handleDateClick(info),
-      select: (info: any) => this.handleDateClick(info)
-    };
+    // Wrap to avoid ExpressionChangedAfterItHasBeenCheckedError
+    setTimeout(() => {
+      // Liaison explicite des événements au démarrage
+      this.calendarOptions = {
+        ...this.calendarOptions,
+        dateClick: (info: any) => this.handleDateClick(info),
+        select: (info: any) => this.handleDateClick(info)
+      };
 
-    this.initForms();
-    this.loadMedecins();
-    this.loadEvents();
-    this.medecinFilter.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged()
-    ).subscribe(() => this.loadEvents());
+      this.initForms();
+      this.loadMedecins();
+      this.loadEvents();
+      
+      this.medecinFilter.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged()
+      ).subscribe(() => this.loadEvents());
 
-    this.searchControl.valueChanges.pipe(
-      debounceTime(300),
-      distinctUntilChanged(),
-      switchMap(val => val && val.length > 1 ? this.patientService.getAll(1, 10, val) : of({data: []}))
-    ).subscribe((res: any) => {
-      this.filteredPatients = res.data || [];
-      this.cdr.detectChanges();
+      this.searchControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        switchMap(val => val && val.length > 1 ? this.patientService.getAll(1, 10, val) : of({data: []}))
+      ).subscribe((res: any) => {
+        this.filteredPatients = res.data || [];
+        this.cdr.detectChanges();
+      });
     });
   }
 
@@ -146,35 +150,93 @@ export class PlanningCalendarComponent implements OnInit {
 
   loadEvents() {
     const medecinId = this.medecinFilter.value ? Number(this.medecinFilter.value) : null;
-    if (!medecinId) {
-      this.calendarOptions = { ...this.calendarOptions, events: [] };
+    
+    setTimeout(() => {
+      this.loading = true;
       this.cdr.detectChanges();
-      return;
-    }
+    });
 
-    this.loading = true;
-    this.loadingService.wrap(this.dispService.getByMedecin(medecinId)).subscribe({
-      next: (res: any) => {
-        const data = Array.isArray(res) ? res : (res.data || []);
-        
-        const events = data.map((disp: any) => ({
-          id: disp.id?.toString(),
-          title: 'Disponible',
-          startTime: disp.heure_debut,
-          endTime: disp.heure_fin,
-          daysOfWeek: [disp.jour_semaine], // 0 for Sunday, 1-6 for Mon-Sat
-          display: 'block',
-          backgroundColor: '#10b981',
-          borderColor: '#059669',
-          textColor: 'white'
-        }));
+    const dispObs = this.dispService.getByMedecin(medecinId);
+    const rdvObs = this.rdvService.getAll({ 
+      medecinId: medecinId || undefined, 
+      noPaginate: true 
+    });
+
+    forkJoin([dispObs, rdvObs]).subscribe({
+      next: ([disps, rdvsRes]) => {
+        const dispsData = Array.isArray(disps) ? disps : ((disps as any).data || []);
+        const rdvsData = Array.isArray(rdvsRes) ? rdvsRes : (rdvsRes.data || []);
+
+        const events: any[] = [];
+
+        // 1. Process Availabilities
+        dispsData.forEach((disp: any) => {
+          const medName = disp.medecin ? `Dr. ${disp.medecin.nom}` : '';
+          const color = disp.medecin_id ? this.getMedecinColor(disp.medecin_id) : '#10b981';
+          
+          events.push({
+            id: `disp_${disp.id}`,
+            title: medecinId ? 'Disponible' : `${medName} (Disp.)`,
+            startTime: disp.heure_debut,
+            endTime: disp.heure_fin,
+            daysOfWeek: [disp.jour_semaine],
+            display: 'block',
+            backgroundColor: color + '33', // 20% opacity for availability
+            borderColor: color,
+            textColor: '#1f2937',
+            extendedProps: { type: 'availability', medecin: disp.medecin }
+          });
+        });
+
+        // 2. Process Appointments (Rendez-vous)
+        rdvsData.forEach((rdv: any) => {
+          const medName = rdv.medecin ? `Dr. ${rdv.medecin.nom}` : '';
+          const patientName = rdv.patient ? `${rdv.patient.nom} ${rdv.patient.prenom}` : 'Patient';
+          const color = rdv.medecin_id ? this.getMedecinColor(rdv.medecin_id) : '#3b82f6';
+
+          events.push({
+            id: `rdv_${rdv.id}`,
+            title: medecinId ? `RDV: ${patientName}` : `${medName}: ${patientName}`,
+            start: rdv.date_heure,
+            end: this.addMinutes(rdv.date_heure, 30), // Assume 30 min if not specified
+            backgroundColor: color,
+            borderColor: color,
+            textColor: 'white',
+            extendedProps: { type: 'appointment', rdv: rdv }
+          });
+        });
 
         this.calendarOptions = { ...this.calendarOptions, events };
         this.loading = false;
         this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
+  }
+
+  private getMedecinColor(id: number): string {
+    const colors = [
+      '#1e40af', // Deep Blue
+      '#059669', // Emerald Green
+      '#3b82f6', // Bright Blue
+      '#10b981', // Green
+      '#2563eb', // Royal Blue
+      '#16a34a', // Dark Green
+      '#0ea5e9', // Sky Blue
+      '#15803d', // Forest Green
+      '#6366f1', // Indigo
+      '#f59e0b', // Amber (for variety)
+    ];
+    return colors[id % colors.length];
+  }
+
+  private addMinutes(dateStr: string, minutes: number): string {
+    const date = new Date(dateStr);
+    date.setMinutes(date.getMinutes() + minutes);
+    return date.toISOString();
   }
 
   handleDateClick(info: any) {

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ConsultationService } from '../../../core/services/consultation.service';
@@ -16,6 +16,7 @@ export class ConsultationDetailComponent implements OnInit {
   private consService = inject(ConsultationService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   consultation: any;
   loading = true;
@@ -35,8 +36,12 @@ export class ConsultationDetailComponent implements OnInit {
       next: (res) => {
         this.consultation = res;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 
@@ -45,7 +50,7 @@ export class ConsultationDetailComponent implements OnInit {
   }
 
   generateOrdonnance() {
-    this.router.navigate(['/ordonnances'], { 
+    this.router.navigate(['/ordonnances/new'], { 
       queryParams: { consultationId: this.consultation.id } 
     });
   }

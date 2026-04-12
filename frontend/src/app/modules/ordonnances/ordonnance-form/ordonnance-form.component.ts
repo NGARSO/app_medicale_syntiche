@@ -1,8 +1,10 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, Validators, ReactiveFormsModule } from '@angular/forms';
 import { OrdonnanceService } from '../../../core/services/ordonnance.service';
 import { ConsultationService } from '../../../core/services/consultation.service';
+import { PatientService } from '../../../core/services/patient.service';
+import { MedecinService } from '../../../core/services/medecin.service';
 import { ActivatedRoute, Router } from '@angular/router';
 
 @Component({
@@ -18,6 +20,7 @@ export class OrdonnanceFormComponent implements OnInit {
   private consService = inject(ConsultationService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   ordonnanceForm!: FormGroup;
   consultation: any;
@@ -37,7 +40,7 @@ export class OrdonnanceFormComponent implements OnInit {
       consultation_id: ['', Validators.required],
       patient_id: ['', Validators.required],
       date_prescription: [new Date().toISOString().split('T')[0], Validators.required],
-      date_expiration: [''],
+      date_expiration: [null],
       notes_generales: [''],
       items: this.fb.array([this.createItem()])
     });
@@ -69,8 +72,7 @@ export class OrdonnanceFormComponent implements OnInit {
 
   loadConsultation(id: number) {
     this.loading = true;
-    this.consService.getById(id).subscribe(res => {
-      // On utilise setTimeout pour éviter l'erreur ExpressionChangedAfterItHasBeenCheckedError
+    this.consService.getById(id).subscribe((res: any) => {
       setTimeout(() => {
         this.consultation = res;
         this.ordonnanceForm.patchValue({
@@ -78,20 +80,34 @@ export class OrdonnanceFormComponent implements OnInit {
           patient_id: res.patient_id
         });
         this.loading = false;
+        this.cdr.detectChanges();
       });
     });
   }
 
   submit() {
-    if (this.ordonnanceForm.invalid) return;
+    if (this.ordonnanceForm.invalid) {
+      this.ordonnanceForm.markAllAsTouched();
+      return;
+    }
+
     this.submitting = true;
-    this.ordService.create(this.ordonnanceForm.value).subscribe({
+    const rawData = this.ordonnanceForm.value;
+    const formattedData = {
+      ...rawData,
+      date_expiration: rawData.date_expiration || null
+    };
+
+    this.ordService.create(formattedData).subscribe({
       next: (res) => {
         this.submitting = false;
-        // Navigation vers la liste avec message de succès
         this.router.navigate(['/ordonnances']);
       },
-      error: () => this.submitting = false
+      error: (err) => {
+        this.submitting = false;
+        alert('Erreur lors de la création : ' + (err.error?.message || 'Serveur injoignable'));
+        this.cdr.detectChanges();
+      }
     });
   }
 }

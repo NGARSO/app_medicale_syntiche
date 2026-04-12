@@ -16,10 +16,11 @@ export interface Disponibilite {
 })
 export class DisponibiliteService {
   private http = inject(HttpClient);
-  private apiUrl = 'http://localhost:8000/api/disponibilites';
+  private apiUrl = '/api/disponibilites';
 
-  getByMedecin(medecinId: number): Observable<Disponibilite[]> {
-    return this.http.get<Disponibilite[]>(`${this.apiUrl}?medecin_id=${medecinId}`);
+  getByMedecin(medecinId: number | null): Observable<Disponibilite[]> {
+    const url = medecinId ? `${this.apiUrl}?medecin_id=${medecinId}` : this.apiUrl;
+    return this.http.get<Disponibilite[]>(url);
   }
 
   create(disp: Disponibilite): Observable<Disponibilite> {

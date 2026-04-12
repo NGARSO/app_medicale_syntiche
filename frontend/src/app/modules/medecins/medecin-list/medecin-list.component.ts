@@ -169,6 +169,6 @@ export class MedecinListComponent implements OnInit {
 
   exportToExcel(): void {
     const token = localStorage.getItem('token');
-    window.open(`http://localhost:8000/api/export/medecins?token=${token}`, '_blank');
+    window.open(`/api/export/medecins?token=${token}`, '_blank');
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { OrdonnanceService } from '../../../core/services/ordonnance.service';
@@ -13,6 +13,7 @@ import { OrdonnanceService } from '../../../core/services/ordonnance.service';
 export class OrdonnanceDetailComponent implements OnInit {
   private route = inject(ActivatedRoute);
   private ordService = inject(OrdonnanceService);
+  private cdr = inject(ChangeDetectorRef);
 
   ordonnance: any;
   loading = true;
@@ -30,8 +31,12 @@ export class OrdonnanceDetailComponent implements OnInit {
       next: (res) => {
         this.ordonnance = res;
         this.loading = false;
+        this.cdr.detectChanges();
       },
-      error: () => this.loading = false
+      error: () => {
+        this.loading = false;
+        this.cdr.detectChanges();
+      }
     });
   }
 

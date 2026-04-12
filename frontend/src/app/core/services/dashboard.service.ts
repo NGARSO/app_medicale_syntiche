@@ -34,6 +34,6 @@ export class DashboardService {
   constructor(private http: HttpClient) {}
 
   getStats(): Observable<DashboardStats> {
-    return this.http.get<DashboardStats>('http://localhost:8000/api/stats');
+    return this.http.get<DashboardStats>('/api/stats');
   }
 }

@@ -137,16 +137,21 @@ export const routes: Routes = [
           import('./modules/ordonnances/ordonnance-list/ordonnance-list.component').then(m => m.OrdonnanceListComponent)
       },
       {
+        path: 'ordonnances/new',
+        loadComponent: () =>
+          import('./modules/ordonnances/ordonnance-form/ordonnance-form.component').then(m => m.OrdonnanceFormComponent)
+      },
+      {
         path: 'ordonnances/:id/view',
         loadComponent: () =>
           import('./modules/ordonnances/ordonnance-detail/ordonnance-detail.component').then(m => m.OrdonnanceDetailComponent)
       },
-      {
-        path: 'verify/:code',
-        loadComponent: () =>
-          import('./modules/verification/prescription-verify/prescription-verify.component').then(m => m.PrescriptionVerifyComponent)
-      },
     ]
+  },
+  {
+    path: 'verify/:code',
+    loadComponent: () =>
+      import('./modules/verification/prescription-verify/prescription-verify.component').then(m => m.PrescriptionVerifyComponent)
   },
 
   { path: '**', redirectTo: '/dashboard' }

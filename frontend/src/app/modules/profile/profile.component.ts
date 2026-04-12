@@ -111,8 +111,8 @@ export class ProfileComponent implements OnInit {
         username: user.username,
         email: user.email
       });
-      if (user.photo_profil) {
-        this.photoUrl = `http://localhost:8000/storage/${user.photo_profil}`;
+      if (user.photo_url) {
+        this.photoUrl = user.photo_url;
       }
     }
   }
@@ -120,22 +120,43 @@ export class ProfileComponent implements OnInit {
   onFileSelected(event: any) {
     const file = event.target.files[0];
     if (file) {
+      console.log('Fichier sélectionné:', file.name, 'Size:', file.size);
+      
+      if (file.size > 2 * 1024 * 1024) {
+        this.error = 'L\'image est trop volumineuse (max 2Mo)';
+        return;
+      }
+
       this.uploading = true;
+      this.error = '';
+      
       const formData = new FormData();
       formData.append('photo', file);
 
-      this.http.post<any>('http://localhost:8000/api/profile/photo', formData).subscribe({
+      console.log('Début du téléchargement vers /api/profile/photo...');
+      
+      this.http.post<any>('/api/profile/photo', formData).subscribe({
         next: (res) => {
-          this.photoUrl = res.url;
+          console.log('Téléchargement réussi:', res);
+          // Utilise une URL relative pour passer par le proxy
+          const relativeUrl = res.url.includes('/storage/') ? '/storage/' + res.url.split('/storage/')[1] : res.url;
+          
+          this.photoUrl = relativeUrl;
           this.uploading = false;
-          // Update local user data if needed
+          
+          // Mise à jour complète du localStorage pour persistance
           const user = this.authService.getUser();
-          user.photo_profil = res.url.split('/storage/')[1];
-          localStorage.setItem('user', JSON.stringify(user));
+          if (user) {
+            user.photo_profil = relativeUrl.split('/storage/')[1];
+            user.photo_url = relativeUrl; 
+            localStorage.setItem('user', JSON.stringify(user));
+            console.log('LocalStorage mis à jour avec URL relative:', relativeUrl);
+          }
         },
-        error: () => {
+        error: (err) => {
+          console.error('Erreur lors du téléchargement:', err);
           this.uploading = false;
-          this.error = 'Erreur lors du téléchargement de la photo';
+          this.error = err.error?.message || 'Erreur lors du téléchargement de la photo';
         }
       });
     }
@@ -148,7 +169,7 @@ export class ProfileComponent implements OnInit {
     this.success = '';
     this.error = '';
 
-    this.http.put<any>('http://localhost:8000/api/profile', this.profileForm.value).subscribe({
+    this.http.put<any>('/api/profile', this.profileForm.value).subscribe({
       next: (res) => {
         this.loading = false;
         this.success = 'Profil mis à jour avec succès';

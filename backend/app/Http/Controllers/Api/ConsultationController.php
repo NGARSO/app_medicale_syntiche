@@ -17,13 +17,33 @@ class ConsultationController extends Controller
         $user = Auth::user();
         $query = Consultation::with(['patient', 'medecin', 'ordonnance']);
 
+        // Filtrage par rôle
         if ($user->role === 'MEDECIN') {
+            if (!$user->medecin) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('medecin_id', $user->medecin->id);
         } elseif ($user->role === 'USER') {
+            if (!$user->patient) {
+                return response()->json(['data' => [], 'total' => 0, 'last_page' => 1]);
+            }
             $query->where('patient_id', $user->patient->id);
         }
 
-        return response()->json($query->orderBy('date_consultation', 'desc')->paginate(10));
+        // Recherche
+        if ($request->has('search')) {
+            $search = $request->search;
+            $query->where(function ($q) use ($search) {
+                $q->where('motif', 'like', "%{$search}%")
+                  ->orWhereHas('patient', function ($pq) use ($search) {
+                      $pq->where('nom', 'like', "%{$search}%")
+                        ->orWhere('prenom', 'like', "%{$search}%");
+                  });
+            });
+        }
+
+        $perPage = $request->get('size', 10);
+        return response()->json($query->orderBy('date_consultation', 'desc')->paginate($perPage));
     }
 
     /**
@@ -54,6 +74,14 @@ class ConsultationController extends Controller
         }
 
         $consultation = Consultation::create($validated);
+
+        // Si un RDV est lié, on le passe en "TERMINE"
+        if ($consultation->rendez_vous_id) {
+            $rdv = \App\Models\RendezVous::find($consultation->rendez_vous_id);
+            if ($rdv) {
+                $rdv->update(['statut' => 'TERMINE']);
+            }
+        }
         
         return response()->json($consultation->load(['patient', 'medecin']), 201);
     }

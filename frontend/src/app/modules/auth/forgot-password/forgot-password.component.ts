@@ -72,7 +72,7 @@ export class ForgotPasswordComponent {
     this.loading = true;
     this.error = '';
     
-    this.http.post<any>('http://localhost:8000/api/forgot-password', this.forgotForm.value).subscribe({
+    this.http.post<any>('/api/forgot-password', this.forgotForm.value).subscribe({
       next: (res) => {
         this.loading = false;
         this.success = res.message;

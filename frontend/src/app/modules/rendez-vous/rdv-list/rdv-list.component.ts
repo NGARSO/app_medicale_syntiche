@@ -178,7 +178,7 @@ export class RdvListComponent implements OnInit {
 
   exportToExcel(): void {
     const token = localStorage.getItem('token');
-    window.open(`http://localhost:8000/api/export/rendez-vous?token=${token}`, '_blank');
+    window.open(`/api/export/rendez-vous?token=${token}`, '_blank');
   }
 
   getStatutClass(statut: StatutRdv): string {

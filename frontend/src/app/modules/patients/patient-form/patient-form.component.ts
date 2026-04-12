@@ -12,31 +12,38 @@ import { LoadingService } from '../../../core/services/loading.service';
   template: `
     <div class="topbar">
       <div>
-        <div class="topbar-title">{{ isEdit ? '✏️ Modifier le patient' : '➕ Nouveau patient' }}</div>
-        <div class="topbar-date">{{ isEdit ? 'Modification des informations' : 'Enregistrement d\'un nouveau patient' }}</div>
+        <div class="topbar-title">
+          <i class="bi" [class.bi-pencil-square]="isEdit" [class.bi-person-plus-fill]="!isEdit"></i>
+          {{ isEdit ? ' Modifier le patient' : ' Nouveau patient' }}
+        </div>
       </div>
       <a routerLink="/patients" class="btn btn-secondary">← Retour</a>
     </div>
 
     <div class="page-content">
-      <div class="card" style="max-width:760px;margin:0 auto">
+      <div class="card" style="max-width:800px;margin:0 auto">
         <div class="card-body" [class.content-loading]="loading">
-
           <div class="alert alert-danger" *ngIf="error"><span>⚠️</span> {{ error }}</div>
 
           <form [formGroup]="form" (ngSubmit)="onSubmit()">
+            
+            <!-- Section : État Civil -->
+            <div class="form-section-header">
+              <i class="bi bi-person-lines-fill me-2"></i> État Civil & Contact
+            </div>
+            
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Nom <span class="required">*</span></label>
                 <input formControlName="nom" type="text" class="form-control"
                   [class.is-invalid]="submitted && f['nom'].errors" placeholder="Nom de famille" />
-                <div class="form-error" *ngIf="submitted && f['nom'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['nom'].errors?.['required']">Le nom est obligatoire</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Prénom <span class="required">*</span></label>
                 <input formControlName="prenom" type="text" class="form-control"
                   [class.is-invalid]="submitted && f['prenom'].errors" placeholder="Prénom" />
-                <div class="form-error" *ngIf="submitted && f['prenom'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['prenom'].errors?.['required']">Le prénom est obligatoire</div>
               </div>
             </div>
 
@@ -45,38 +52,40 @@ import { LoadingService } from '../../../core/services/loading.service';
                 <label class="form-label">CIN <span class="required">*</span></label>
                 <input formControlName="cin" type="text" class="form-control"
                   [class.is-invalid]="submitted && f['cin'].errors" placeholder="Ex: SN12345678" />
-                <div class="form-error" *ngIf="submitted && f['cin'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['cin'].errors?.['required']">Le CIN est obligatoire</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Date de naissance <span class="required">*</span></label>
                 <input formControlName="date_naissance" type="date" class="form-control"
                   [class.is-invalid]="submitted && f['date_naissance'].errors" />
-                <div class="form-error" *ngIf="submitted && f['date_naissance'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['date_naissance'].errors?.['required']">La date de naissance est obligatoire</div>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Email</label>
-                <input formControlName="email" type="email" class="form-control" placeholder="patient@email.com" />
+                <input formControlName="email" type="email" class="form-control" 
+                  [class.is-invalid]="submitted && f['email'].errors" placeholder="patient@email.com" />
+                <div class="form-error" *ngIf="submitted && f['email'].errors?.['email']">Format d'email invalide</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Téléphone <span class="required">*</span></label>
                 <input formControlName="telephone" type="text" class="form-control"
                   [class.is-invalid]="submitted && f['telephone'].errors" placeholder="07 00 00 00 00" />
-                <div class="form-error" *ngIf="submitted && f['telephone'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['telephone'].errors?.['required']">Le téléphone est obligatoire</div>
               </div>
             </div>
 
             <div class="form-row">
               <div class="form-group">
                 <label class="form-label">Sexe <span class="required">*</span></label>
-                <select formControlName="sexe" class="form-control">
+                <select formControlName="sexe" class="form-control" [class.is-invalid]="submitted && f['sexe'].errors">
                   <option value="">-- Choisir --</option>
                   <option value="M">♂ Masculin</option>
                   <option value="F">♀ Féminin</option>
                 </select>
-                <div class="form-error" *ngIf="submitted && f['sexe'].errors?.['required']">Obligatoire</div>
+                <div class="form-error" *ngIf="submitted && f['sexe'].errors?.['required']">Le sexe est obligatoire</div>
               </div>
               <div class="form-group">
                 <label class="form-label">Groupe sanguin</label>
@@ -89,14 +98,43 @@ import { LoadingService } from '../../../core/services/loading.service';
 
             <div class="form-group">
               <label class="form-label">Antécédents médicaux</label>
-              <textarea formControlName="antecedents" class="form-control" rows="3"
-                placeholder="Allergies, maladies chroniques, chirurgies passées..."></textarea>
+              <textarea formControlName="antecedents" class="form-control" rows="2"
+                placeholder="Allergies, maladies chroniques..."></textarea>
             </div>
 
-            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:8px">
+            <!-- Section : Compte Utilisateur (Seulement en création) -->
+            <ng-container *ngIf="!isEdit">
+              <div class="form-section-header mt-4">
+                <i class="bi bi-shield-lock-fill me-2"></i> Compte Patient (Accès à l'application)
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">Nom d'utilisateur <span class="required">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="bi bi-at"></i>
+                    <input formControlName="username" type="text" class="form-control ps-5" 
+                      [class.is-invalid]="submitted && f['username'].errors" placeholder="identifiant" />
+                  </div>
+                  <div class="form-error" *ngIf="submitted && f['username'].errors?.['required']">L'identifiant est obligatoire</div>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Mot de passe provisoire <span class="required">*</span></label>
+                  <div class="input-with-icon">
+                    <i class="bi bi-key"></i>
+                    <input formControlName="password" type="password" class="form-control ps-5" 
+                      [class.is-invalid]="submitted && f['password'].errors" placeholder="••••••" />
+                  </div>
+                  <div class="form-error" *ngIf="submitted && f['password'].errors?.['required']">Le mot de passe est obligatoire</div>
+                  <div class="form-error" *ngIf="submitted && f['password'].errors?.['minlength']">Minimum 6 caractères</div>
+                </div>
+              </div>
+            </ng-container>
+
+            <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:24px">
               <a routerLink="/patients" class="btn btn-secondary">Annuler</a>
               <button type="submit" class="btn btn-primary" [disabled]="saving || loading">
-                {{ saving ? 'Enregistrement...' : (isEdit ? '💾 Enregistrer' : '✅ Créer le patient') }}
+                <i class="bi bi-check-circle me-1"></i>
+                {{ saving ? 'Enregistrement...' : (isEdit ? 'Enregistrer les modifications' : 'Créer Patient & Compte') }}
               </button>
             </div>
           </form>
@@ -122,6 +160,9 @@ export class PatientFormComponent implements OnInit {
     sexe:           ['', Validators.required],
     groupe_sanguin: [''],
     antecedents:    [''],
+    // User fields
+    username:       [''],
+    password:       ['']
   });
 
   groupesSanguins = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
@@ -146,12 +187,19 @@ export class PatientFormComponent implements OnInit {
         },
         error: () => { this.error = 'Patient introuvable'; this.loading = false; }
       });
+    } else {
+      // Add required validators for creation
+      this.form.get('username')?.setValidators([Validators.required]);
+      this.form.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
     }
   }
 
   onSubmit(): void {
     this.submitted = true;
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.error = 'Veuillez remplir correctement tous les champs obligatoires (marqués par *).';
+      return;
+    }
     this.saving = true;
     this.error = '';
 

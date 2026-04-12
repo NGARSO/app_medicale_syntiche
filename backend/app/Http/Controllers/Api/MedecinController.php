@@ -4,7 +4,10 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Medecin;
+use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 
 class MedecinController extends Controller
 {
@@ -31,16 +34,42 @@ class MedecinController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
+            // Infos Médecin
             'nom'        => 'required|string|max:100',
             'prenom'     => 'required|string|max:100',
             'specialite' => 'required|string|max:100',
-            'email'      => 'required|email|unique:medecins',
+            'email'      => 'required|email|unique:medecins|unique:users,email',
             'telephone'  => 'required|string|max:20',
             'matricule'  => 'required|string|unique:medecins',
             'disponible' => 'boolean',
+
+            // Infos Compte (Optionnel mais recommandé)
+            'username'   => 'nullable|string|unique:users',
+            'password'   => 'nullable|string|min:6',
         ]);
 
-        return response()->json(Medecin::create($validated), 201);
+        return DB::transaction(function () use ($validated) {
+            $userId = null;
+
+            // Création du compte si username/password fournis
+            if (!empty($validated['username']) && !empty($validated['password'])) {
+                $user = User::create([
+                    'username' => $validated['username'],
+                    'email'    => $validated['email'],
+                    'password' => Hash::make($validated['password']),
+                    'role'     => 'MEDECIN',
+                ]);
+                $userId = $user->id;
+            }
+
+            // Création du médecin
+            $profileData = collect($validated)->except(['username', 'password'])->toArray();
+            $profileData['user_id'] = $userId;
+            
+            $medecin = Medecin::create($profileData);
+            
+            return response()->json($medecin, 201);
+        });
     }
 
     public function show($id)
