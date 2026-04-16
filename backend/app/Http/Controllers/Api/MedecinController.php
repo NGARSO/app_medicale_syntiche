@@ -40,7 +40,7 @@ class MedecinController extends Controller
             'specialite' => 'required|string|max:100',
             'email'      => 'required|email|unique:medecins|unique:users,email',
             'telephone'  => 'required|string|max:20',
-            'matricule'  => 'required|string|unique:medecins',
+            'matricule'  => 'nullable|string|unique:medecins',
             'disponible' => 'boolean',
 
             // Infos Compte (Optionnel mais recommandé)
@@ -65,6 +65,19 @@ class MedecinController extends Controller
             // Création du médecin
             $profileData = collect($validated)->except(['username', 'password'])->toArray();
             $profileData['user_id'] = $userId;
+
+            // Génération du matricule si non fourni
+            if (empty($profileData['matricule'])) {
+                $year = date('Y');
+                $count = Medecin::whereYear('created_at', $year)->count() + 1;
+                $profileData['matricule'] = sprintf('MED-%s-%04d', $year, $count);
+                
+                // Double check uniqueness (though count+1 is usually fine for small systems)
+                while (Medecin::where('matricule', $profileData['matricule'])->exists()) {
+                    $count++;
+                    $profileData['matricule'] = sprintf('MED-%s-%04d', $year, $count);
+                }
+            }
             
             $medecin = Medecin::create($profileData);
             

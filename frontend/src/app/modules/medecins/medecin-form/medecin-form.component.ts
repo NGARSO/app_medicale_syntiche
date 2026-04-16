@@ -81,10 +81,9 @@ const SPECIALITES = [
 
             <div class="form-row">
               <div class="form-group">
-                <label class="form-label">Matricule / RPPS <span class="required">*</span></label>
+                <label class="form-label">Matricule / RPPS <span class="text-muted">(Auto)</span></label>
                 <input formControlName="matricule" type="text" class="form-control"
-                  [class.is-invalid]="submitted && f['matricule'].errors" placeholder="MED001" />
-                <div class="form-error" *ngIf="submitted && f['matricule'].errors?.['required']">Le matricule est obligatoire</div>
+                  [readonly]="!isEdit" placeholder="Généré automatiquement..." />
               </div>
               <div class="form-group">
                 <label class="form-label">Statut</label>
@@ -149,7 +148,7 @@ export class MedecinFormComponent implements OnInit {
     specialite: ['', Validators.required],
     email:      ['', [Validators.required, Validators.email]],
     telephone:  ['', Validators.required],
-    matricule:  ['', Validators.required],
+    matricule:  [''],
     disponible: [true],
     // User fields
     username:   [''],

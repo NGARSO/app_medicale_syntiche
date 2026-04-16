@@ -1,4 +1,4 @@
-# 🏥 Système de Gestion de Clinique Médicale
+ # 🏥 Système de Gestion de Clinique Médicale
 ### Application Web Full Stack — Laravel 11 + Angular 18
 **Année universitaire 2025–2026 | Délai : 15 jours**
 
